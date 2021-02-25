@@ -1,9 +1,15 @@
-import React, { useState } from "react";
-import { AppBar, Container, Tabs, Tab, makeStyles } from "@material-ui/core";
+import React from "react";
+import {
+  AppBar,
+  Container,
+  Tabs,
+  Tab,
+  makeStyles,
+  Button,
+} from "@material-ui/core";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import Employees from "./components/Employees/Employees";
-import Settings from "./components/Settings/Settings";
-import Record from "./components/Record/Record";
+import { routes } from "./components/utils";
+import { useDispatch, useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -11,32 +17,47 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const routes = [
-  {
-    path: "/employee",
-    component: Employees,
-    label: "Список сотрудников",
-  },
-  {
-    path: "/record",
-    component: Record,
-    label: "Добавить запись",
-  },
-  {
-    path: "/settings",
-    component: Settings,
-    label: "Настройки",
-  },
-];
-
 function App() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const customers = useSelector((state) => state.customers.customers);
+
+  const addCustomer = (name) => {
+    const customer = {
+      name,
+      id: Date.now(),
+    };
+    dispatch({ type: "ADD_CUSTOMER", payload: customer });
+  };
+  const removeCustomer = (customer) => {
+    dispatch({ type: "REMOVE_CUSTOMER", payload: customer.id });
+  };
 
   return (
-    <Container maxWidth="lg">
+    <Container
+      maxWidth="lg"
+      // style={{
+      //   display: "flex",
+      //   alignItems: "center",
+      //   justifyContent: "center",
+      //   flexDirection: "column",
+      //   height: "100vh",
+      // }}
+    >
+      {/* <Button onClick={() => addCustomer(prompt())}>Добавить клиента</Button>
+      <Button>Удалить клиента</Button>
+      {customers.length > 0 ? (
+        <div>
+          {customers.map((customer) => (
+            <div onClick={() => removeCustomer(customer)}>{customer.name}</div>
+          ))}
+        </div>
+      ) : (
+        <div>Клиенты отсутствуют</div>
+      )} */}
       <Router>
         <Route
-          path="/"
+          // path="/"
           render={(history) => (
             <AppBar className={classes.root} color="default" position="static">
               <Tabs
@@ -49,8 +70,9 @@ function App() {
                 indicatorColor="primary"
                 textColor="primary"
               >
-                {routes.map((route, index) => (
+                {routes.map((route) => (
                   <Tab
+                    key={route.path}
                     value={route.path}
                     label={route.label}
                     to={route.path}
@@ -62,8 +84,12 @@ function App() {
           )}
         />
         <Switch>
-          {routes.map((route, index) => (
-            <Route key={index} path={route.path} component={route.component} />
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              component={route.component}
+            />
           ))}
         </Switch>
       </Router>
