@@ -1,74 +1,29 @@
-import React from "react";
-import {
-  AppBar,
-  Container,
-  Tabs,
-  Tab,
-  makeStyles,
-  Button,
-} from "@material-ui/core";
+import { AppBar, Container, Tabs, Tab } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { routes } from "./components/utils";
-import { useDispatch, useSelector } from "react-redux";
+import { routes } from "./routes/routes";
+import { createTheme } from "@mui/material/styles";
 
-const useStyles = makeStyles((theme) => ({
+const theme = createTheme();
+const useStyles = makeStyles(() => ({
   root: {
     marginBottom: theme.spacing(3),
   },
 }));
 
-function App() {
+const App = () => {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const customers = useSelector((state) => state.customers.customers);
-
-  const addCustomer = (name) => {
-    const customer = {
-      name,
-      id: Date.now(),
-    };
-    dispatch({ type: "ADD_CUSTOMER", payload: customer });
-  };
-  const removeCustomer = (customer) => {
-    dispatch({ type: "REMOVE_CUSTOMER", payload: customer.id });
-  };
-
   return (
-    <Container
-      maxWidth="lg"
-      // style={{
-      //   display: "flex",
-      //   alignItems: "center",
-      //   justifyContent: "center",
-      //   flexDirection: "column",
-      //   height: "100vh",
-      // }}
-    >
-      {/* <Button onClick={() => addCustomer(prompt())}>Добавить клиента</Button>
-      <Button>Удалить клиента</Button>
-      {customers.length > 0 ? (
-        <div>
-          {customers.map((customer) => (
-            <div onClick={() => removeCustomer(customer)}>{customer.name}</div>
-          ))}
-        </div>
-      ) : (
-        <div>Клиенты отсутствуют</div>
-      )} */}
+    <Container maxWidth='lg'>
       <Router>
         <Route
-          // path="/"
           render={(history) => (
-            <AppBar className={classes.root} color="default" position="static">
+            <AppBar className={classes.root} color='default' position='static'>
               <Tabs
-                value={
-                  history.location.pathname !== "/"
-                    ? history.location.pathname
-                    : false
-                }
-                variant="fullWidth"
-                indicatorColor="primary"
-                textColor="primary"
+                value={history.location.pathname}
+                variant='fullWidth'
+                indicatorColor='primary'
+                textColor='primary'
               >
                 {routes.map((route) => (
                   <Tab
@@ -86,6 +41,7 @@ function App() {
         <Switch>
           {routes.map((route) => (
             <Route
+              exact
               key={route.path}
               path={route.path}
               component={route.component}
@@ -95,6 +51,6 @@ function App() {
       </Router>
     </Container>
   );
-}
+};
 
 export default App;

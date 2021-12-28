@@ -1,175 +1,91 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  Button,
   Checkbox,
   Grid,
   FormControl,
   FormControlLabel,
   FormLabel,
   FormGroup,
-} from "@material-ui/core";
-import { Formik, Field, Form } from "formik";
-
-// const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+} from "@mui/material";
+import { useFormik } from "formik";
+import { ButtonCustom } from "../../common/components/ButtonCustom";
+import { useDispatch, useSelector } from "react-redux";
+import { ON_CHECKED } from "../../constants/employee";
+import { TextFieldCustom } from "../../common/components";
 
 const Settings = () => {
-  // const [state, setState] = useState({
-  //   lastName: true,
-  //   firstName: true,
-  //   middleName: true,
-  //   birthDate: true,
-  //   personnelNumber: true,
-  //   position: true,
-  //   subdivision: true,
-  // });
+  const [show, setShow] = useState(false);
 
-  // const handleChange = (event) => {
-  //   setState({ ...state, [event.target.name]: event.target.checked });
-  // };
+  const dispatch = useDispatch();
+  const userForm = useSelector((state) => state.userForm);
 
-  // const {
-  //   lastName,
-  //   firstName,
-  //   middleName,
-  //   birthDate,
-  //   personnelNumber,
-  //   position,
-  //   subdivision,
-  // } = state;
+  const formik = useFormik({
+    initialValues: userForm,
+    onSubmit: (values) => {
+      dispatch({
+        type: ON_CHECKED,
+        payload: values,
+      });
+      setShow(false);
+    },
+  });
 
   return (
-    <Formik
-      initialValues={{
-        checked: [
-          "lastName",
-          "firstName",
-          "middleName",
-          "birthDate",
-          "personnelNumber",
-          "position",
-          "subdivision",
-        ],
-      }}
-      onSubmit={(event) => {
-        // event.preventDefault();
-        let checked = [...this.state.checked];
-      }}
-    >
-      {({ handleChange, handleSubmit, values }) => (
-        <form onSubmit={handleSubmit}>
-          <Grid container justify="center">
-            <Grid container item xs={4} spacing={3}>
-              <Grid item xs={12}>
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">
-                    Информация по сотруднику которая будет отображаться
-                  </FormLabel>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="lastName"
-                        />
-                      }
-                      label="Фамилия"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="firstName"
-                        />
-                      }
-                      label="Имя"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="middleName"
-                        />
-                      }
-                      label="Отчество"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="birthDate"
-                        />
-                      }
-                      label="Дата рождения"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="personnelNumber"
-                        />
-                      }
-                      label="Табельный номер"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          type="checkbox"
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="position"
-                        />
-                      }
-                      label="Должность"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          type="checkbox"
-                          color="primary"
-                          defaultChecked
-                          onChange={handleChange}
-                          name="checked"
-                          value="subdivision"
-                        />
-                      }
-                      label="Подразделение"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  color="primary"
-                  fullWidth
-                  variant="contained"
-                >
-                  Сохранить
-                </Button>
-              </Grid>
-            </Grid>
+    <form onSubmit={formik.handleSubmit}>
+      <Grid container justifyContent='center'>
+        <Grid container item xs={4} spacing={3}>
+          <Grid item xs={12}>
+            <FormControl>
+              <FormLabel>
+                Информация по сотруднику которая будет отображаться
+              </FormLabel>
+              <FormGroup>
+                {userForm.map((item) => (
+                  <FormControlLabel
+                    label={item.label}
+                    key={item.label}
+                    checked={formik.values[item.id].checked}
+                    onChange={(event) =>
+                      formik.setFieldValue(item.id, {
+                        ...item,
+                        checked: event.target.checked,
+                      })
+                    }
+                    control={<Checkbox />}
+                  />
+                ))}
+              </FormGroup>
+            </FormControl>
           </Grid>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
-        </form>
-      )}
-    </Formik>
+          <Grid item xs={12}>
+            <ButtonCustom fullWidth onClick={() => setShow(!show)}>
+              Добавить новое поле
+            </ButtonCustom>
+          </Grid>
+          {show && (
+            <Grid item xs={12}>
+              <TextFieldCustom
+                label='Название поля'
+                onChange={(event) =>
+                  formik.setFieldValue(userForm.length, {
+                    id: userForm.length,
+                    checked: true,
+                    label: event.target.value,
+                    name: `field${userForm.length}`,
+                    component: TextFieldCustom,
+                  })
+                }
+              />
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            <ButtonCustom type='submit' fullWidth>
+              Сохранить
+            </ButtonCustom>
+          </Grid>
+        </Grid>
+      </Grid>
+    </form>
   );
 };
 
